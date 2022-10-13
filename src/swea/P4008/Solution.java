@@ -7,7 +7,7 @@ import java.util.StringTokenizer;
 /**
  * SWEA 4008. 숫자 만들기 
  * @author hoseong
- * @category 
+ * @category 순열, 백트래킹
  */
 public class Solution {
 	static int N, op[], nums[], opt[], max, min;
