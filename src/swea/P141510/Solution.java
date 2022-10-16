@@ -31,57 +31,35 @@ public class Solution {
 				max = Math.max(max, t);
 			}
 			
-			int even = 0, odd = 0, cnt = 0;
+			int even = 0, odd = 0;
 			for (int i = 0; i < N; i++) {
 				int diff = max - trees[i];
 				
 				if(diff == 0) continue;
 				
-				even += diff / 3;
-				odd += diff / 3;
-				
-				if(diff % 3 == 2) {
-					even++;
-					
-				} else if(diff % 3 == 1) {
-					odd++;
-				}
+				even += diff / 2;
+				odd += diff % 2;
 			}
-			
-			int sum = 0;
-			while(true) {
-				if(odd > even) {
-					if(even == 0) {
-						sum = odd * 2 - 1;
-						break;
-						
-					} else if(odd - even == 1) {
-						sum = odd + even;
-						break;
-						
-					} else {
-						sum = (even * 2) + (odd - even)/2 + (odd - even)%2;
-						break;
-					}
-					
-				} else if(odd == even) {
-					sum = odd + even;
-					break;
-					
-				} else {
-					if(odd == 0 || even - odd == 1) {
-						sum = even * 2;
-						break;
-					
-					} else {
-						even--;
-						odd += 2;
-					}
-				}
-			}
-			
-			System.out.println("#" + tc + " " + sum);
-		}
 
+			int result = 0;
+			if(even > odd) {
+				while(Math.abs(even - odd) > 1) {
+					even--;
+					odd += 2;
+				}
+			}
+			
+			if(odd > even) {
+				result = odd * 2 - 1;
+				
+			} else if(even > odd) {
+				result = (odd * 2) + (even - odd) * 2;
+				
+			} else {
+				result = odd + even;
+			}
+			
+			System.out.println("#" + tc + " " + result);
+		}
 	}
 }
