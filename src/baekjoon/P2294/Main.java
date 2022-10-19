@@ -3,18 +3,15 @@ package baekjoon.P2294;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.util.Collections;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.Arrays;
 import java.util.StringTokenizer;
 
 /**
  * 백준 2294. 동전 2 - 골드 5
  * @author hoseong
- * @category 
+ * @category DP
  */
 public class Main {
-
 	public static void main(String[] args) throws IOException {
 		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
 		StringTokenizer st = new StringTokenizer(br.readLine());
@@ -22,28 +19,27 @@ public class Main {
 		int N = Integer.parseInt(st.nextToken()); //동전 종류
 		int K = Integer.parseInt(st.nextToken()); //가치의 합
 		
-		List<Integer> coin = new LinkedList<>();
+		int[] coin = new int[N];
+		int[] dp = new int[K+1];
 		
 		for (int i = 0; i < N; i++) {
-			coin.add(Integer.parseInt(br.readLine()));
+			coin[i] = Integer.parseInt(br.readLine());
 		}
 		
-		Collections.sort(coin, Collections.reverseOrder());
+		Arrays.fill(dp, K+1);
 		
-		int min = 100001;
-		for (int i = 0; i < N; i++) {
-			int temp = K, sum = 0;
-			for (int j = i; j < N; j++) {
-				int big = coin.get(j);
-				
-				sum += temp / big;
-				temp %= big;
+		dp[0] = 0;
+		for (int i = 1; i <= K; i++) {
+			for (int j = 0; j < N; j++) {
+				if(i >= coin[j]) {
+					dp[i] = Math.min(dp[i], dp[i - coin[j]]+1);
+				}
 			}
-			
-			min = Math.min(min, sum);
 		}
-
-		System.out.println(min == 100001 ? -1 : min);
+		
+		if(dp[K] == K+1)
+			System.out.println(-1);
+		else
+			System.out.println(dp[K]);
 	}
-
 }
