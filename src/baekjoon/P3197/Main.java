@@ -4,8 +4,6 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayDeque;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Queue;
 import java.util.StringTokenizer;
 
@@ -26,7 +24,9 @@ public class Main {
 		int C = Integer.parseInt(st.nextToken());
 		
 		int[][] map = new int[R][C];
+		int[][] swan = new int[2][2];
 		
+		//백조의 위치도 물이므로 물로 표시 후, 백조의 좌표 기억
 		int l = 0;
 		for (int i = 0; i < R; i++) {
 			String s = br.readLine();
@@ -37,7 +37,9 @@ public class Main {
 					map[i][j] = -2;
 					
 				} else if(c == 'L') {
-					map[i][j] = l++;
+					map[i][j] = -2;
+					swan[l][0] = i;
+					swan[l++][1] = j;
 					
 				} else {
 					map[i][j] = -1;
@@ -45,27 +47,23 @@ public class Main {
 			}
 		}
 		
-		for (int[] m : map) {
-			System.out.println(Arrays.toString(m));
-		}
-		System.out.println();
-		
-		int p = 2;
-		boolean[][] visited;
+		int p = 2; //새로운 집합
+		boolean[][] visited = new boolean[R][C];
 		Queue<int[]> q = new ArrayDeque<>();
 		Queue<int[]> ices = new ArrayDeque<>();
+		
+		//집합 만들기
+		//인접해 있는 물끼리 집합을 만든다
 		for (int i = 0; i < R; i++) {
 			for (int j = 0; j < C; j++) {
 				if(map[i][j] == -2) {
-					q.clear();
-					visited = new boolean[R][C];
-					
 					q.add(new int[] {i, j});
 					visited[i][j] = true;
 					
 					while(!q.isEmpty()) {
 						int[] m = q.poll();
 						
+						//물의 위치를 집합 번호로 바꿈
 						if(map[m[0]][m[1]] == -2)
 							map[m[0]][m[1]] = p;
 						
@@ -79,12 +77,8 @@ public class Main {
 							if(map[r][c] == -2) {
 								q.add(new int[] {r, c});
 								
-							} else if(map[r][c] == 1 || map[r][c] == 0) {
-								q.add(new int[] {r, c});
-								
-							} else {
+							} else { //녹아야 할 얼음 위치
 								ices.add(new int[] {r, c});
-								map[r][c] = map[i][j];
 							}
 						}
 					}
@@ -93,21 +87,18 @@ public class Main {
 				}
 			}
 		}
+		
+		//서로소 집합 생성
 		parents = new int[p];
 		for (int i = 0; i < p; i++) {
 			parents[i] = i;
 		}
 		
-		for (int[] m : map) {
-			System.out.println(Arrays.toString(m));
-		}
-		System.out.println();
-		System.out.println(Arrays.toString(parents));
+		int day=0;
 		
-		int day=1;
-		visited = new boolean[R][C];
-		ice: while(!ices.isEmpty()) {
-			System.out.println("size: " + ices.size());
+		//각 백조가 속한 집합이 합쳐지기 전까지
+		while(find(map[swan[0][0]][swan[0][1]]) != find(map[swan[1][0]][swan[1][1]])) {
+			visited = new boolean[R][C];
 			for (int i = 0, size = ices.size(); i < size; i++) {
 				int[] ice = ices.poll();
 				
@@ -116,35 +107,29 @@ public class Main {
 					int r = ice[0] + dir[d][0];
 					int c = ice[1] + dir[d][1];
 					
-					if(r<0 || r>=R || c<0 || c>=C || visited[r][c]) continue;
+					if(r<0 || r>=R || c<0 || c>=C) continue;
 					
-					
-					if(map[r][c] == -1) {
+					//얼음이면서 방문한 적 없으면 추후 녹을 얼음에 추가
+					if(map[r][c] == -1 && !visited[r][c]) {
+						visited[r][c] = true;
 						ices.add(new int[] {r, c});
-						map[r][c] = map[ice[0]][ice[1]];
 						
-					} else {
-						System.out.println("m: " + map[r][c] + ", mi: " + map[ice[0]][ice[1]]);
-						if(!union(map[r][c], map[ice[0]][ice[1]])) {
-							System.out.println(Arrays.toString(parents));
-							if(parents[0] == parents[1]) {
-								ices.clear();
-								break ice;
-							}
+					} else if (map[r][c] != -1) {
+						//얼음이 아니지만 탐색 시작 위치가 어느 집합에 속해있지 않으면 탐색된 집합에 속하게한다.
+						if(map[ice[0]][ice[1]] == -1) {
+							map[ice[0]][ice[1]] = map[r][c];
+							
+						} else { //서로 다른 집합이 만나면 union 시킨다.
+							union(map[r][c], map[ice[0]][ice[1]]);
 						}
 					}
 				}
 			}
-		
+			
 			day++;
 		}
 		
 		System.out.println(day);
-//		for (int i = 0; i < R; i++) {
-//			for (int j = 0; j < C; j++) {
-//				
-//			}
-//		}
 	}
 
 	static boolean union(int a, int b) {
