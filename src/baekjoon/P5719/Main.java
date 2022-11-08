@@ -17,10 +17,12 @@ import java.util.StringTokenizer;
 public class Main {
 	static class Node implements Comparable<Node> {
 		int to, weight;
+        boolean isVisited;
 
 		public Node(int to, int weight) {
 			this.to = to;
 			this.weight = weight;
+            this.isVisited = false;
 		}
 
 		@Override
@@ -91,6 +93,8 @@ public class Main {
 			if(n.weight > d[n.to]) continue;
 			
 			for (Node nd : nodes[n.to]) {
+                if(nd.isVisited) continue;
+                
 				int cost = d[n.to] + nd.weight;
 				
 				if(d[nd.to] > cost) {
@@ -106,7 +110,7 @@ public class Main {
 		while(e != null) {
 			for (Node nd : nodes[e.to]) {
 				if(nd.to == from) {
-					nodes[e.to].remove(nd);
+                    nd.isVisited = true;
 					break;
 				}
 			}
