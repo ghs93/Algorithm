@@ -13,15 +13,22 @@ import java.util.Queue;
 public class Solution {
 
 	public static void main(String[] args) {
-		int result = solution(8, new int[][] {{1, 2}, {1, 3}, {1, 4}, {1, 5}, {5, 6}, {5, 7}, {5, 8}});
-//		int result = solution(10, new int[][] {{4, 1}, {5, 1}, {5, 6}, {7, 	6}, {1, 2}, {1, 3}, {6, 8}, {2, 9}, {9, 10}});
+		int result1 = solution(8, new int[][] {{1, 2}, {1, 3}, {1, 4}, {1, 5}, {5, 6}, {5, 7}, {5, 8}});
+		int result2 = solution(10, new int[][] {{4, 1}, {5, 1}, {5, 6}, {7, 	6}, {1, 2}, {1, 3}, {6, 8}, {2, 9}, {9, 10}});
+		int result3 = solution(5, new int[][] {{1, 2}, {2, 3}, {3, 4}, {4, 5}});
+		int result4 = solution(13, new int[][] {{1, 2}, {1, 3}, {1, 4}, {1, 5}, {2, 6}, {4, 7}, {5, 8}, {3, 9}, {9, 10}, {9, 11}, {9, 12}, {11, 13}});
+		int result5 = solution(2, new int[][] {{1,2}});
+		int result6 = solution(10, new int[][] {{1, 2}, {1, 3}, {1, 4}, {1, 5}, {5, 6}, {6, 7}, {6, 8}, {6, 9}, {5, 10}});
 		
-		System.out.println(result);
+		System.out.println(result1);
+		System.out.println(result2);
+		System.out.println(result3);
+		System.out.println(result4);
+		System.out.println(result5);
+		System.out.println(result6);
 	}
 
 	public static int solution(int n, int[][] lighthouse) {
-        int answer = 0;
-        
         Node[] nodes = new Node[n+1];
         for (int i = 0; i <= n; i++) {
 			nodes[i] = new Node(i, 0);
@@ -56,7 +63,7 @@ public class Solution {
         while(!q.isEmpty()) {
         	Node node = q.poll();
         	visited[node.from] = true;
-        	System.out.println("on: " + node);
+        	
         	//불 켜기
         	onRoot++;
         	
@@ -68,6 +75,8 @@ public class Solution {
         		visited[to] = true;
         		boolean check = true;
         		for (int t : nodes[to].to) {
+        			if(visited[t]) continue;
+        			
         			//자식 모두가 리프노드 인가 검사
 					if(nodes[t].connection > 1)
 						check = false;
@@ -77,9 +86,7 @@ public class Solution {
         		
         		//자식노드의 자식들이 모두 리프노드일 경우
         		if(check) {
-        			System.out.println("check: " + to);
         			for (int t : nodes[to].to) {
-        				System.out.println("remove: " + nodes[t]);
     					q.remove(nodes[t]);
     				}
         			
@@ -95,10 +102,11 @@ public class Solution {
         visited[root] = true;
         for(int to : nodes[root].to)
         	q.add(nodes[to]);
+        
         while(!q.isEmpty()) {
         	Node node = q.poll();
         	visited[node.from] = true;
-        	System.out.println("off: " + node);
+        	
         	offRoot++;
         	
         	//자식의 자식 추가
@@ -109,6 +117,8 @@ public class Solution {
         		visited[to] = true;
         		boolean check = true;
         		for (int t : nodes[to].to) {
+        			if(visited[t]) continue;
+        			
         			//자식 모두가 리프노드 인가 검사
 					if(nodes[t].connection > 1)
 						check = false;
@@ -126,21 +136,17 @@ public class Solution {
         		}
 			}
         }
-        
         System.out.println("on: " + onRoot + ", off: " + offRoot);
-        
-        return answer;
+        return Math.min(onRoot, offRoot);
     }
 	
-	static class Node implements Comparable<Node> {
+	static class Node {
 		ArrayList<Integer> to;
 		int from, connection;
-		boolean isBright;
 
 		public Node(int from, int connection) {
 			this.from = from;
 			this.connection = connection;
-			this.isBright = false;
 			to = new ArrayList<>();
 		}
 		
@@ -150,13 +156,8 @@ public class Solution {
 		}
 
 		@Override
-		public int compareTo(Node o) {
-			return this.connection - o.connection;
-		}
-
-		@Override
 		public String toString() {
-			return "Node [to=" + to + ", from=" + from + ", connection=" + connection + ", isBright=" + isBright + "]";
+			return "Node [to=" + to + ", from=" + from + ", connection=" + connection + "]";
 		}
 	}
 }
