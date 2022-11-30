@@ -32,10 +32,12 @@ public class Main {
 	}
 
 	static List<Node>[] nodes;
+	static Node[] nArr;
 	
 	public static void main(String[] args) throws IOException {
 		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
 		StringTokenizer st;
+		StringBuilder sb = new StringBuilder();
 		
 		while(true) {
 			st = new StringTokenizer(br.readLine());
@@ -63,23 +65,29 @@ public class Main {
 				nodes[U].add(new Node(V, P));
 			}
 			
+			nArr = new Node[N];
 			int min = dijkstra(S, D, N)[D];
+			deletePath(D);
 			
 			int next = 0;
 			while(true) {
+				Arrays.fill(nArr, null);
 				next = dijkstra(S, D, N)[D];
 				
 				if(min != next)
 					break;
+				
+				deletePath(D);
 			}
 			
-			System.out.println(next == Integer.MAX_VALUE ? -1 : next);
+			sb.append(next == Integer.MAX_VALUE ? -1 : next).append('\n');
 		}
+		
+		System.out.println(sb);
 	}
 	
 	public static int[] dijkstra(int start, int end, int N) {
 		PriorityQueue<Node> pq = new PriorityQueue<>();
-		Node[] nArr = new Node[N];
 		
 		int[] d = new int[N];
 		Arrays.fill(d, Integer.MAX_VALUE);
@@ -105,6 +113,10 @@ public class Main {
 			}
 		}
 		
+		return d;
+	}
+	
+	static void deletePath(int end) {
 		Node e = nArr[end];
 		int from = end;
 		while(e != null) {
@@ -118,7 +130,5 @@ public class Main {
 			from = e.to;
 			e = nArr[e.to];
 		}
-		
-		return d;
 	}
 }
