@@ -10,7 +10,8 @@ import java.io.InputStreamReader;
  * @category DP 
  */
 public class Main {
-	static long[][] dp;
+	static int[][] dp;
+	static int MOD = 1000000003;
 	
 	public static void main(String[] args) throws IOException {
 		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
@@ -18,37 +19,31 @@ public class Main {
 		int N = Integer.parseInt(br.readLine());
 		int K = Integer.parseInt(br.readLine());
 		
-		dp = new long[N+1][K+1];
+		dp = new int[N+1][K+1];
 
-		int MOD = 1000000003;
-		if(K==1) {
-			System.out.println(N);
-			
-		} else if(N%2 == 0 && K == N/2) {
-			System.out.println(2);
-			
-		} else if (K > N/2){
+		
+		if(N/K < 2) {
 			System.out.println(0);
-			
-		} else {
-			System.out.println(getCnt(N, K) % MOD);
+			return;
 		}
+		
+		int cnt = getCnt(N, K);
+		
+		System.out.println(cnt);
 	}
 
-	public static long getCnt(int N, int K) {
+	public static int getCnt(int N, int K) {
 		if(K == 1) {
 			return N;
 		}
 		
-		if(N%2 == 0 && K == N/2) {
+		if(K == (N/2 + N%2)) {
 			return 2;
 		}
 		
-		if(dp[N][K] > 0) {
-			return dp[N][K];
-			
-		} else {
-			return dp[N][K] = getCnt(N-2, K-1) + getCnt(N-1, K);
-		}
+		if(dp[N][K] == 0)
+			dp[N][K] = (getCnt(N-2, K-1) + getCnt(N-1, K)) % MOD;
+		
+		return dp[N][K];
 	}
 }
