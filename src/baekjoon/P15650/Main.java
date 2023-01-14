@@ -9,7 +9,7 @@ import java.util.StringTokenizer;
 /**
  * 백준 15650. N과 M(2) - 실버 3
  * @author hoseong
- * @category
+ * @category 백트래킹
  */
 public class Main {
     static ArrayList<Integer> arr;
