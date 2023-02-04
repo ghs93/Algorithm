@@ -8,7 +8,6 @@ import java.util.StringTokenizer;
 
 /**
  * 백준 1654. 랜선 자르기 - 실버 2
- * 
  * @author hoseong
  * @category 이분탐색, 매개 변수 탐색
  */
