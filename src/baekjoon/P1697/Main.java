@@ -10,7 +10,7 @@ import java.util.StringTokenizer;
 /**
  * 백준 1697. 숨바꼭질 - 실버 1
  * @author hoseong
- * @category
+ * @category BFS
  */
 public class Main {
     final static int MAX = 100001;
