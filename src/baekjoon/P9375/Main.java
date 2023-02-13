@@ -10,7 +10,7 @@ import java.util.StringTokenizer;
 /**
  * 백준 9375. 패션왕 신해빈 - 실버 3
  * @author hoseong
- * @category
+ * @category HashMap, 조합
  */
 public class Main {
     public static void main(String[] args) throws IOException {
