@@ -8,7 +8,7 @@ import java.util.StringTokenizer;
 /**
  * 백준 1780. 종이의 개수 - 실버 2
  * @author hoseong
- * @category
+ * @category DFS, 분할 정복
  */
 public class Main {
     static int zero = 0, minus = 0, one = 0;
