@@ -32,7 +32,6 @@ public class Main {
     static int[] go;
     static int[] back;
     static int N, M, X;
-    static ArrayList<Node>[] map;
 
     public static void main(String[] args) throws IOException {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
@@ -42,9 +41,11 @@ public class Main {
         M = Integer.parseInt(st.nextToken());
         X = Integer.parseInt(st.nextToken());
 
-        map = new ArrayList[N+1];
+        ArrayList<Node>[] map = new ArrayList[N+1];
+        ArrayList<Node>[] revMap = new ArrayList[N+1];
         for (int i = 0; i < N+1; i++) {
             map[i] = new ArrayList<>();
+            revMap[i] = new ArrayList<>();
         }
 
         for (int i = 0; i < M; i++) {
@@ -55,16 +56,11 @@ public class Main {
             int weight = Integer.parseInt(st.nextToken());
 
             map[from].add(new Node(to, weight));
+            revMap[to].add(new Node(from, weight));
         }
 
-        go = new int[N+1];
-        back = dijkstra(X);
-        for (int i = 1; i < N+1; i++) {
-            if (i == X) continue;
-
-            int[] d = dijkstra(i);
-            go[i] = d[X];
-        }
+        go = dijkstra(map);
+        back = dijkstra(revMap);
 
         int result = 0;
         for (int i = 1; i < N+1; i++) {
@@ -76,20 +72,20 @@ public class Main {
         System.out.println(result);
     }
 
-    static int[] dijkstra(int start) {
+    static int[] dijkstra(ArrayList<Node>[] road) {
         PriorityQueue<Node> q = new PriorityQueue<>();
         int[] d = new int[N+1];
         Arrays.fill(d, Integer.MAX_VALUE);
 
-        q.add(new Node(start, 0));
-        d[start] = 0;
+        q.add(new Node(X, 0));
+        d[X] = 0;
 
         while (!q.isEmpty()) {
             Node node = q.poll();
 
             if (node.weight > d[node.to]) continue;
 
-            for (Node n : map[node.to]) {
+            for (Node n : road[node.to]) {
                 int cost = d[node.to] + n.weight;
 
                 if (d[n.to] > cost) {
