@@ -1,6 +1,8 @@
 package swea.P14596;
 
+import java.util.ArrayDeque;
 import java.util.ArrayList;
+import java.util.Queue;
 
 /**
  * SWEA 14596. 섬지키기
@@ -29,6 +31,7 @@ class UserSolution
     int[][] init; // 초기의 섬 모양
     int[][] modify; // 블록을 설치했을때 섬 모양
     int n;
+    boolean[][] visited;
     ArrayList<Block>[] blocks; // 블록의 hash 값
 
     /**
@@ -42,7 +45,8 @@ class UserSolution
         n = N;
         init = new int[N+2][N+2];
         modify = new int[N+2][N+2];
-        blocks = new ArrayList[MAX_M];
+        visited = new boolean[N+2][N+2];
+        blocks = new ArrayList[MAX_M+1];
 
         for (int i = 0; i <= MAX_M; i++) {
             blocks[i] = new ArrayList<>();
@@ -61,16 +65,17 @@ class UserSolution
             for (int i = 1; i <= N; i++) {
                 for (int j = 1; j + bl - 1 <= N; j++) {
                     int hash = 0;
-                    for (int k = j; k < j + bl; k++) {
-                        hash = hash * 10 + (mMap[i][k] - mMap[i][k+1] + 5);
+                    for (int k = j; k < j + bl - 1; k++) {
+                        hash = hash * 10 + (init[i][k] - init[i][k+1] + 5);
                     }
                     blocks[hash].add(new Block(i, j, true, false));
 
                     int reverseHash = 0;
-                    for (int k = j + bl; k > j; k--) {
-                        reverseHash = reverseHash * 10 + (mMap[i][k] - mMap[i][k-1] + 5);
+                    for (int k = j + bl - 1; k > j; k--) {
+                        reverseHash = reverseHash * 10 + (init[i][k] - init[i][k-1] + 5);
                     }
-                    blocks[reverseHash].add(new Block(i, j, true, true));
+                    if (reverseHash != hash)
+                        blocks[reverseHash].add(new Block(i, j, true, true));
                 }
             }
 
@@ -78,16 +83,17 @@ class UserSolution
             for (int j = 1; j <= N; j++) {
                 for (int i = 1; i + bl - 1 <= N; i++) {
                     int hash = 0;
-                    for (int k = i; k < i + bl; k++) {
-                        hash = hash * 10 + (mMap[k][j] - mMap[k+1][j] + 5);
+                    for (int k = i; k < i + bl - 1; k++) {
+                        hash = hash * 10 + (init[k][j] - init[k+1][j] + 5);
                     }
                     blocks[hash].add(new Block(i, j, false, false));
 
                     int reverseHash = 0;
-                    for (int k = i + bl; k > i; k--) {
-                        reverseHash = reverseHash * 10 + (mMap[k][j] - mMap[k-1][j] + 5);
+                    for (int k = i + bl - 1; k > i; k--) {
+                        reverseHash = reverseHash * 10 + (init[k][j] - init[k-1][j] + 5);
                     }
-                    blocks[reverseHash].add(new Block(i, j, false, true));
+                    if (reverseHash != hash)
+                        blocks[reverseHash].add(new Block(i, j, false, true));
                 }
             }
         }
@@ -127,15 +133,87 @@ class UserSolution
      */
     public int maxArea(int M, int mStructure[], int mSeaLevel)
     {
-        if (mSeaLevel == 1) {
-            return n * n;
-        }
+//        if (mSeaLevel == 1) {
+//            return n * n;
+//        }
 
         int result = -1;
         if (M == 1) {
+            for (int i = 1; i <= n; i++) {
+                for (int j = 1; j <= n; j++) {
+                    modify[i][j] += mStructure[0];
+                    result = Math.max(result, bfs(mSeaLevel));
+                    modify[i][j] = init[i][j];
+                }
+            }
 
+            return result;
         }
 
-        return 0;
+        int hash = 0;
+        for (int i = 0; i < M-1; i++) {
+            hash = hash * 10 + (mStructure[i+1] - mStructure[i] + 5);
+        }
+
+        for (Block block : blocks[hash]) {
+            if (block.isHorizontal) {
+                int height = mStructure[0] + (block.isReverse ? init[block.r][block.c + M - 1] : init[block.r][block.c]);
+                for (int i = 0; i < M; i++) {
+                    modify[block.r][block.c + i] = height;
+                }
+                result = Math.max(result, bfs(mSeaLevel));
+                for (int i = 0; i < M; i++) {
+                    modify[block.r][block.c + i] = init[block.r][block.c + i];
+                }
+
+            } else {
+                int height = mStructure[0] + (block.isReverse ? init[block.r + M - 1][block.c] : init[block.r][block.c]);
+                for (int i = 0; i < M; i++) {
+                    modify[block.r + i][block.c] = height;
+                }
+                result = Math.max(result, bfs(mSeaLevel));
+                for (int i = 0; i < M; i++) {
+                    modify[block.r + i][block.c] = init[block.r + i][block.c];
+                }
+            }
+        }
+
+        return result;
+    }
+
+    int[][] dir = {{-1, 0}, {0, 1}, {1, 0}, {0, -1}};
+    public int bfs(int level) {
+        int result = 0;
+        Queue<int[]> q = new ArrayDeque<>();
+        for (int i = 0; i <= n + 1; i++) {
+            for (int j = 0; j <= n + 1; j++) {
+                if (i == 0 || i == n + 1 || j == 0 || j == n + 1) {
+                    q.add(new int[] {i, j});
+                    visited[i][j] = true;
+
+                } else {
+                    visited[i][j] = false;
+                }
+            }
+        }
+
+        while (!q.isEmpty()) {
+            int[] tmp = q.poll();
+
+            for (int d = 0; d < 4; d++) {
+                int dr = tmp[0] + dir[d][0];
+                int dc = tmp[1] + dir[d][1];
+
+                if (dr > 0 && dr <= n && dc > 0 && dc <= n) {
+                    if (!visited[dr][dc] && modify[dr][dc] < level) {
+                        q.add(new int[] {dr, dc});
+                        visited[dr][dc] = true;
+                        result++;
+                    }
+                }
+            }
+        }
+
+        return n * n - result;
     }
 }

@@ -78,7 +78,7 @@ class Solution {
     {
         int TC, MARK;
 
-        //System.setIn(new java.io.FileInputStream("res/sample_input.txt"));
+        System.setIn(new java.io.FileInputStream("src\\swea\\P14596\\sample_input.txt"));
 
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
         StringTokenizer st = new StringTokenizer(br.readLine(), " ");
