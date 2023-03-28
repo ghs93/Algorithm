@@ -1,22 +1,14 @@
 package swea.P14613;
 
+import java.util.HashMap;
 import java.util.List;
 
 class UserSolution
 {
-    public class CustomList {
-        int idx;
-        int parent;
-        boolean isCopy;
-
-        CustomList(int idx, int parent, boolean isCopy) {
-            this.idx = idx;
-            this.parent = parent;
-            this.isCopy = isCopy;
-        }
-    }
-
-
+    int[][] map;
+    HashMap<String, Integer> who;
+    HashMap<Integer, Integer>[] changeLog;
+    int index;
 
     /**
      * 각 테스트 케이스의 처음에 호출된다.
@@ -24,6 +16,23 @@ class UserSolution
      */
     public void init()
     {
+        map = new int[10][200000];
+        who = new HashMap<>();
+        changeLog = new HashMap[5010];
+        index = 0;
+
+        for (int i = 0; i < 5010; i++) {
+            changeLog[i] = new HashMap<>();
+        }
+    }
+
+    private String getName(char mName[]) {
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0, size = mName.length - 1; i < size; i++) {
+            sb.append(mName[i]);
+        }
+
+        return sb.toString();
     }
 
     /**
@@ -39,6 +48,9 @@ class UserSolution
      */
     public void makeList(char mName[], int mLength, int mListValue[])
     {
+        String name = getName(mName);
+        System.arraycopy(mListValue, 0, map[index], 0, mLength);
+        who.put(name, index++);
     }
 
     /**
@@ -60,6 +72,15 @@ class UserSolution
      */
     public void copyList(char mDest[], char mSrc[], boolean mCopy)
     {
+        String srcName = getName(mSrc);
+        String destName = getName(mDest);
+
+        if (mCopy) {
+            who.put(destName, index++);
+
+        } else {
+            who.put(destName, who.get(srcName));
+        }
     }
 
     /**
@@ -73,6 +94,9 @@ class UserSolution
      */
     public void updateElement(char mName[], int mIndex, int mValue)
     {
+        String name = getName(mName);
+
+        changeLog[who.get(name)].put(mIndex, mValue);
     }
 
     /**
@@ -84,6 +108,8 @@ class UserSolution
      */
     public int element(char mName[], int mIndex)
     {
-        return 0;
+        String name = getName(mName);
+
+        return changeLog[who.get(name)].get(mIndex) == null ? map[who.get(name)][mIndex] : changeLog[who.get(name)].get(mIndex);
     }
 }
