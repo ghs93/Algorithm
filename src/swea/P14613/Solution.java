@@ -102,6 +102,7 @@ class Solution {
                     mIndex = Integer.parseInt((st.nextToken()));
                     userAns = usersolution.element(mName, mIndex);
                     ans = Integer.parseInt((st.nextToken()));
+//                    System.out.println("user: " + userAns + ", ans : " + ans);
                     if (userAns != ans)
                     {
                         isCorrect = false;

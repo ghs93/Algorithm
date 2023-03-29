@@ -1,14 +1,48 @@
 package swea.P14613;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 
 class UserSolution
 {
+    class Link {
+        int idx;
+        int log;
+        int init;
+        Link connect;
+
+        Link(int idx, int log, int init, Link connect) {
+            this.idx = idx;
+            this.log = log;
+            this.init = init;
+            this.connect = connect;
+        }
+
+        @Override
+        public String toString() {
+            return "{idx:" + this.idx + ", log:" + this.log + ", conn:" + this.connect + "}";
+        }
+    }
+
+    class Log {
+        int time;
+        int index;
+
+        Log(int time, int index) {
+            this.time = time;
+            this.index = index;
+        }
+
+        @Override
+        public String toString() {
+            return "{time: " + this.time + ", index: " + this.index + "}";
+        }
+    }
     int[][] map;
-    HashMap<String, Integer> who;
-    HashMap<Integer, Integer>[] changeLog;
-    int index;
+    HashMap<String, Link> who;
+    HashMap<Integer, Log>[] changeLog;
+    int index, address, chLog;
 
     /**
      * 각 테스트 케이스의 처음에 호출된다.
@@ -20,15 +54,17 @@ class UserSolution
         who = new HashMap<>();
         changeLog = new HashMap[5010];
         index = 0;
+        address = 0;
+        chLog = 0;
 
         for (int i = 0; i < 5010; i++) {
             changeLog[i] = new HashMap<>();
         }
     }
 
-    private String getName(char mName[]) {
+    private String getName(char[] mName) {
         StringBuilder sb = new StringBuilder();
-        for (int i = 0, size = mName.length - 1; i < size; i++) {
+        for (int i = 0; mName[i] != 0; i++) {
             sb.append(mName[i]);
         }
 
@@ -50,7 +86,7 @@ class UserSolution
     {
         String name = getName(mName);
         System.arraycopy(mListValue, 0, map[index], 0, mLength);
-        who.put(name, index++);
+        who.put(name, new Link(address++, chLog++, index++, null));
     }
 
     /**
@@ -76,11 +112,13 @@ class UserSolution
         String destName = getName(mDest);
 
         if (mCopy) {
-            who.put(destName, index++);
+            who.put(destName, new Link(address++, chLog++, index, who.get(srcName)));
 
         } else {
             who.put(destName, who.get(srcName));
         }
+//        System.out.println("==========copy==========");
+//        System.out.println("dest: " + destName + ", who: " + who);
     }
 
     /**
@@ -96,7 +134,9 @@ class UserSolution
     {
         String name = getName(mName);
 
-        changeLog[who.get(name)].put(mIndex, mValue);
+        changeLog[who.get(name).idx].put(mIndex, new Log(chLog++, mValue));
+//        System.out.println("==========update==========");
+//        System.out.println("name: " + name + ", ch: " + changeLog[who.get(name).idx]);
     }
 
     /**
@@ -109,7 +149,37 @@ class UserSolution
     public int element(char mName[], int mIndex)
     {
         String name = getName(mName);
+//        System.out.println("==========element==========");
+//        System.out.println("name: " + name + ", index: " + mIndex + ", ele: " + changeLog[who.get(name).idx].get(mIndex));
+        if (changeLog[who.get(name).idx].get(mIndex) == null) {
+            Link con = who.get(name).connect;
+//            if (name.equals("c")) {
+//                System.out.println("c is " + con);
+//            }
+            if (con == null) {
+                return map[who.get(name).init][mIndex];
+            }
 
-        return changeLog[who.get(name)].get(mIndex) == null ? map[who.get(name)][mIndex] : changeLog[who.get(name)].get(mIndex);
+            Link last = null;
+            while (con != null) {
+                if (changeLog[con.idx].get(mIndex) != null && changeLog[con.idx].get(mIndex).time < who.get(name).log) {
+                    return changeLog[con.idx].get(mIndex).index;
+                }
+
+                last = con;
+                con = con.connect;
+            }
+
+            return map[last.init][mIndex];
+
+        } else {
+//            System.out.println("==================================================");
+//            System.out.println("name: " + name);
+//            System.out.println("index: " + mIndex);
+//            System.out.println("who: " + who.get(name).init);
+//            System.out.println("change: " + changeLog[who.get(name).init].get(mIndex));
+//            System.out.println();
+            return changeLog[who.get(name).idx].get(mIndex).index;
+        }
     }
 }
