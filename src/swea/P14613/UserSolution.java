@@ -1,48 +1,43 @@
 package swea.P14613;
 
-import java.util.Arrays;
 import java.util.HashMap;
-import java.util.List;
 
+/**
+ * SWEA 14613. 리스트 복사
+ * @author hoseong
+ * @category 구현, LinkedList
+ */
 class UserSolution
 {
-    class Link {
-        int idx;
-        int log;
-        int init;
-        Link connect;
+    class Node {
+        int[] value;
+        Log log;
 
-        Link(int idx, int log, int init, Link connect) {
-            this.idx = idx;
-            this.log = log;
-            this.init = init;
-            this.connect = connect;
+        Node(int[] mListValue, int length) {
+            this.value = new int[length];
+            System.arraycopy(mListValue, 0, this.value, 0, length);
+            this.log = null;
         }
 
-        @Override
-        public String toString() {
-            return "{idx:" + this.idx + ", log:" + this.log + ", conn:" + this.connect + "}";
+        Node(Node node) {
+            this.value = node.value;
+            this.log = node.log;
         }
     }
 
     class Log {
-        int time;
         int index;
+        int value;
+        Log next;
 
-        Log(int time, int index) {
-            this.time = time;
+        Log(int index, int value) {
             this.index = index;
-        }
-
-        @Override
-        public String toString() {
-            return "{time: " + this.time + ", index: " + this.index + "}";
+            this.value = value;
+            this.next = null;
         }
     }
-    int[][] map;
-    HashMap<String, Link> who;
-    HashMap<Integer, Log>[] changeLog;
-    int index, address, chLog;
+
+    HashMap<String, Node> map;
 
     /**
      * 각 테스트 케이스의 처음에 호출된다.
@@ -50,16 +45,7 @@ class UserSolution
      */
     public void init()
     {
-        map = new int[10][200000];
-        who = new HashMap<>();
-        changeLog = new HashMap[5010];
-        index = 0;
-        address = 0;
-        chLog = 0;
-
-        for (int i = 0; i < 5010; i++) {
-            changeLog[i] = new HashMap<>();
-        }
+        map = new HashMap<>();
     }
 
     private String getName(char[] mName) {
@@ -85,8 +71,7 @@ class UserSolution
     public void makeList(char mName[], int mLength, int mListValue[])
     {
         String name = getName(mName);
-        System.arraycopy(mListValue, 0, map[index], 0, mLength);
-        who.put(name, new Link(address++, chLog++, index++, null));
+        map.put(name, new Node(mListValue, mLength));
     }
 
     /**
@@ -112,13 +97,11 @@ class UserSolution
         String destName = getName(mDest);
 
         if (mCopy) {
-            who.put(destName, new Link(address++, chLog++, index, who.get(srcName)));
+            map.put(destName, new Node(map.get(srcName)));
 
         } else {
-            who.put(destName, who.get(srcName));
+            map.put(destName, map.get(srcName));
         }
-//        System.out.println("==========copy==========");
-//        System.out.println("dest: " + destName + ", who: " + who);
     }
 
     /**
@@ -134,9 +117,10 @@ class UserSolution
     {
         String name = getName(mName);
 
-        changeLog[who.get(name).idx].put(mIndex, new Log(chLog++, mValue));
-//        System.out.println("==========update==========");
-//        System.out.println("name: " + name + ", ch: " + changeLog[who.get(name).idx]);
+        Node node = map.get(name);
+        Log tmp = node.log;
+        node.log = new Log(mIndex, mValue);
+        node.log.next = tmp;
     }
 
     /**
@@ -149,37 +133,17 @@ class UserSolution
     public int element(char mName[], int mIndex)
     {
         String name = getName(mName);
-//        System.out.println("==========element==========");
-//        System.out.println("name: " + name + ", index: " + mIndex + ", ele: " + changeLog[who.get(name).idx].get(mIndex));
-        if (changeLog[who.get(name).idx].get(mIndex) == null) {
-            Link con = who.get(name).connect;
-//            if (name.equals("c")) {
-//                System.out.println("c is " + con);
-//            }
-            if (con == null) {
-                return map[who.get(name).init][mIndex];
+
+        Node node = new Node(map.get(name));
+
+        while (node.log != null) {
+            if (node.log.index == mIndex) {
+                return node.log.value;
             }
 
-            Link last = null;
-            while (con != null) {
-                if (changeLog[con.idx].get(mIndex) != null && changeLog[con.idx].get(mIndex).time < who.get(name).log) {
-                    return changeLog[con.idx].get(mIndex).index;
-                }
-
-                last = con;
-                con = con.connect;
-            }
-
-            return map[last.init][mIndex];
-
-        } else {
-//            System.out.println("==================================================");
-//            System.out.println("name: " + name);
-//            System.out.println("index: " + mIndex);
-//            System.out.println("who: " + who.get(name).init);
-//            System.out.println("change: " + changeLog[who.get(name).init].get(mIndex));
-//            System.out.println();
-            return changeLog[who.get(name).idx].get(mIndex).index;
+            node.log = node.log.next;
         }
+
+        return node.value[mIndex];
     }
 }
