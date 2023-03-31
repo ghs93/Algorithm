@@ -7,11 +7,9 @@ import java.io.InputStreamReader;
 /**
  * SWEA 4038. 단어가 등장하는 횟수
  * @author hoseong
- * @category 문자열, KMP
+ * @category 문자열, Hash
  */
 public class Solution {
-    static int[] pi;
-
     public static void main(String[] args) throws IOException {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
         StringBuilder sb = new StringBuilder();
@@ -21,48 +19,43 @@ public class Solution {
         for (int test_case = 1; test_case <= T; test_case++) {
             sb.append('#').append(test_case).append(' ');
 
-            char[] B = br.readLine().toCharArray();
-            char[] S = br.readLine().toCharArray();
+            String B = br.readLine();
+            String S = br.readLine();
 
-            if (B.length < S.length) {
-                sb.append(0).append('\n');
-
-            } else {
-                pi = new int[S.length];
-                makePi(S);
-
-                sb.append(findPattern(B, S)).append('\n');
-            }
+            sb.append(findPattern(B, S)).append('\n');
         }
 
         System.out.println(sb);
     }
 
-    static void makePi(char[] S) {
-        for (int i = 1, j=0, size = S.length; i < size; i++) {
-            while(j>0 && S[i] != S[j]) j = pi[j-1];
-
-            if(S[i] == S[j]) pi[i] = ++j;
-            else pi[i] = 0;
-        }
-    }
-
-    static int findPattern(char[] B, char[] S) {
+    static public int findPattern(String B, String S) {
         int result = 0;
 
-        for (int i = 0, j = 0, sSize = B.length; i < sSize; i++) {
-            while(j>0 && B[i] != S[j]) j = pi[j-1];
+        int bLength = B.length();
+        int sLength = S.length();
 
-            if(B[i] == S[j]) {
-                if(j == S.length - 1) {
-                    result++;
-                    i = i - j + 1;
-                    j = 0;
+        long bHash = 0;
+        long sHash = 0;
 
-                } else {
-                    j++;
+        int base = 313;
+        long mul = 1;
+
+        for (int i = 0; i <= bLength - sLength; i++) {
+            if (i == 0) {
+                for (int j = 0; j < sLength; j++) {
+                    bHash += B.charAt(sLength - 1 - j) * mul;
+                    sHash += S.charAt(sLength - 1 - j) * mul;
+
+                    if (j < sLength - 1) {
+                        mul *= base;
+                    }
                 }
+                
+            } else {
+                bHash = base * (bHash - (B.charAt(i - 1) * mul)) + B.charAt(sLength - 1 + i);
             }
+
+            if (bHash == sHash) result++;
         }
 
         return result;
