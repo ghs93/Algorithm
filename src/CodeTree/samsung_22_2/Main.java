@@ -73,13 +73,15 @@ public class Main {
 
             location[i] = b;
             Product product = new Product(i);
-            if (belts[b].header.next == null) {
-                belts[b].header.next = belts[b].rear = product;
-
-            } else {
-                belts[b].rear.next = product;
-                belts[b].rear = product;
-            }
+            belts[b].rear.next = product;
+            belts[b].rear = product;
+//            if (belts[b].header == null) {
+//                belts[b].header = belts[b].rear = product;
+//
+//            } else {
+//                belts[b].rear.next = product;
+//                belts[b].rear = product;
+//            }
 
             size[b]++;
         }
@@ -100,13 +102,11 @@ public class Main {
 
         belts[src].rear.next = belts[dst].header.next;
         belts[dst].header.next = belts[src].header.next;
-
         belts[src].header.next = null;
-        belts[src].rear = null;
+        belts[src].rear = belts[src].header;
 
         size[dst] += size[src];
         size[src] = 0;
-
         appendAnswer(size[dst]);
     }
 
@@ -117,38 +117,32 @@ public class Main {
         }
 
         if (belts[src].header.next == null) {
-            location[belts[dst].header.next.num] = src;
-            belts[src].header.next = belts[src].rear = belts[dst].header.next;
+            belts[src].rear.next = new Product(belts[dst].header.next.num);
             belts[dst].header.next = belts[dst].header.next.next;
 
             size[src]++;
             size[dst]--;
-            appendAnswer(size[dst]);
 
         } else if (belts[dst].header.next == null) {
-            location[belts[src].header.next.num] = dst;
-            belts[dst].header.next = belts[dst].rear = belts[src].header.next;
+            belts[dst].rear.next = new Product(belts[src].header.next.num);
             belts[src].header.next = belts[src].header.next.next;
 
             size[src]--;
             size[dst]++;
-            appendAnswer(size[dst]);
 
         } else {
-            location[belts[dst].header.next.num] = src;
-            location[belts[src].header.next.num] = dst;
-
-            Product tmp = new Product(0);
-            tmp.next = belts[dst].header.next.next;
-            belts[dst].header.next.next = belts[src].header.next.next;
-            belts[src].header.next.next = tmp.next;
-
-            tmp.next = belts[dst].header.next;
-            belts[dst].header.next = belts[src].header.next;
-            belts[src].header.next = tmp.next;
-
-            appendAnswer(size[dst]);
+            Product tmp = belts[src].header.next.next;
+            belts[src].header.next = belts[dst].header.next;
+            belts[dst].header.next.next = tmp;
+            tmp = belts[src].header.next;
+            belts[src].header.next = belts[dst].header.next;
+            belts[dst].header.next = tmp;
         }
+
+        if (belts[src].header.next == null) belts[src].rear = belts[src].header;
+        if (belts[dst].header.next == null) belts[dst].rear = belts[dst].header;
+
+        appendAnswer(size[dst]);
     }
 
     static void divideProduct(int src, int dst) {
@@ -157,13 +151,13 @@ public class Main {
             return;
         }
 
-        int s = size[src] / 2;
+        int fn = size[src] / 2;
 
         Product srcTemp = belts[src].header.next;
         Product dstTemp = belts[dst].header.next;
 
         location[srcTemp.num] = dst;
-        for (int i = 1; i < s; i++) {
+        for (int i = 1; i < fn; i++) {
             srcTemp = srcTemp.next;
             location[srcTemp.num] = dst;
         }
@@ -172,8 +166,8 @@ public class Main {
         belts[src].header.next = srcTemp.next;
         srcTemp.next = dstTemp;
 
-        size[src] -= s;
-        size[dst] += s;
+        size[src] -= fn;
+        size[dst] += fn;
 
         appendAnswer(size[dst]);
     }
@@ -188,7 +182,7 @@ public class Main {
 
         if (tmp.num == num) {
             b = tmp.next == null ? -1 : tmp.next.num;
-            System.out.println("num: " + num + ", a: " + a + ", b: " + b + ", ans: " + (a + (2 * b)));
+//            System.out.println("num: " + num + ", a: " + a + ", b: " + b + ", ans: " + (a + (2 * b)));
             appendAnswer(a + (2 * b));
             return;
         }
@@ -201,7 +195,7 @@ public class Main {
 
         a = front.num;
         b = tmp.next == null ? -1 : tmp.next.num;
-        System.out.println("num: " + num + ", a: " + a + ", b: " + b + ", ans: " + (a + (2 * b)) + ", tmp: " + tmp.num + ", next: " + (tmp.next == null ? -1 : tmp.next.num));
+//        System.out.println("num: " + num + ", a: " + a + ", b: " + b + ", ans: " + (a + (2 * b)) + ", tmp: " + tmp.num + ", next: " + (tmp.next == null ? -1 : tmp.next.num));
         appendAnswer(a + (2 * b));
     }
 
@@ -225,6 +219,8 @@ public class Main {
         int num;
         Product next;
 
+        Product(){}
+
         Product(int num) {
             this.num =  num;
             this.next = null;
@@ -236,8 +232,8 @@ public class Main {
         Product rear;
 
         Belt() {
-            this.header = new Product(-1);
-            this.rear = null;
+            Product product = new Product();
+            this.header = this.rear = product;
         }
     }
 }
