@@ -2,7 +2,6 @@ package CodeTree.samsung_22_2;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
-import java.util.Arrays;
 import java.util.StringTokenizer;
 
 public class Main {
@@ -24,7 +23,6 @@ public class Main {
             st = new StringTokenizer(br.readLine());
 
             int cs = Integer.parseInt(st.nextToken());
-//            System.out.println(cs);
             switch (cs) {
                 case 100:
                     n = Integer.parseInt(st.nextToken()); //belt
@@ -53,7 +51,6 @@ public class Main {
                     getBeltInfo(Integer.parseInt(st.nextToken()));
                     break;
             }
-//            System.out.println(Arrays.toString(location));
         }
 
         System.out.println(sb);
@@ -75,13 +72,6 @@ public class Main {
             Product product = new Product(i);
             belts[b].rear.next = product;
             belts[b].rear = product;
-//            if (belts[b].header == null) {
-//                belts[b].header = belts[b].rear = product;
-//
-//            } else {
-//                belts[b].rear.next = product;
-//                belts[b].rear = product;
-//            }
 
             size[b]++;
         }
@@ -107,6 +97,7 @@ public class Main {
 
         size[dst] += size[src];
         size[src] = 0;
+
         appendAnswer(size[dst]);
     }
 
@@ -117,16 +108,22 @@ public class Main {
         }
 
         if (belts[src].header.next == null) {
-            belts[src].rear.next = new Product(belts[dst].header.next.num);
+            Product product = new Product(belts[dst].header.next.num);
+            belts[src].rear.next = product;
+            belts[src].rear = product;
             belts[dst].header.next = belts[dst].header.next.next;
 
+            location[belts[src].rear.num] = src;
             size[src]++;
             size[dst]--;
 
         } else if (belts[dst].header.next == null) {
-            belts[dst].rear.next = new Product(belts[src].header.next.num);
+            Product product = new Product(belts[src].header.next.num);
+            belts[dst].rear.next = product;
+            belts[dst].rear = product;
             belts[src].header.next = belts[src].header.next.next;
 
+            location[belts[dst].rear.num] = dst;
             size[src]--;
             size[dst]++;
 
@@ -137,6 +134,9 @@ public class Main {
             tmp = belts[src].header.next;
             belts[src].header.next = belts[dst].header.next;
             belts[dst].header.next = tmp;
+
+            location[belts[src].header.next.num] = src;
+            location[belts[dst].header.next.num] = dst;
         }
 
         if (belts[src].header.next == null) belts[src].rear = belts[src].header;
@@ -162,9 +162,17 @@ public class Main {
             location[srcTemp.num] = dst;
         }
 
-        belts[dst].header.next = belts[src].header.next;
-        belts[src].header.next = srcTemp.next;
-        srcTemp.next = dstTemp;
+        if (belts[dst].header.next == null) {
+            belts[dst].header.next = belts[src].header.next;
+            belts[dst].rear = srcTemp;
+            belts[dst].rear.next = null;
+            belts[src].header.next = srcTemp.next;
+
+        } else {
+            belts[dst].header.next = belts[src].header.next;
+            belts[src].header.next = srcTemp.next;
+            srcTemp.next = dstTemp;
+        }
 
         size[src] -= fn;
         size[dst] += fn;
@@ -180,9 +188,13 @@ public class Main {
         int a = -1;
         int b = -1;
 
+        if (belts[src].header.next == null) {
+            appendAnswer(a + (2 * b));
+            return;
+        }
+
         if (tmp.num == num) {
             b = tmp.next == null ? -1 : tmp.next.num;
-//            System.out.println("num: " + num + ", a: " + a + ", b: " + b + ", ans: " + (a + (2 * b)));
             appendAnswer(a + (2 * b));
             return;
         }
@@ -195,7 +207,7 @@ public class Main {
 
         a = front.num;
         b = tmp.next == null ? -1 : tmp.next.num;
-//        System.out.println("num: " + num + ", a: " + a + ", b: " + b + ", ans: " + (a + (2 * b)) + ", tmp: " + tmp.num + ", next: " + (tmp.next == null ? -1 : tmp.next.num));
+
         appendAnswer(a + (2 * b));
     }
 
@@ -208,6 +220,7 @@ public class Main {
         int a = belts[num].header.next.num;
         int b = belts[num].rear.num;
         int c = size[num];
+
         appendAnswer(a + (2 * b) + (3 * c));
     }
 
@@ -237,4 +250,3 @@ public class Main {
         }
     }
 }
-
