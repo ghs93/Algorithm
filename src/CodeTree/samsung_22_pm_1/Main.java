@@ -1,4 +1,4 @@
-package CodeTree.samsung_22_1;
+package CodeTree.samsung_22_pm_1;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
