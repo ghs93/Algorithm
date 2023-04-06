@@ -1,9 +1,14 @@
-package CodeTree.samsung_22_pm_1;
+package CodeTree.samsung_22_second_pm_1;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.util.*;
 
+/**
+ * CodeTree. 코드트리 빵
+ * @author hoseong
+ * @category Simulation, BFS
+ */
 public class Main {
     static class Man {
         int r, c;
@@ -68,17 +73,8 @@ public class Main {
 
             //move
             for (int i = 1; i <= Math.min(time, m); i++) {
-//                System.out.println("i: " + i + ", size: " + q[i].size());
                 bfs: for (int j = 0, size = q[i].size(); j < size; j++) {
                     Man m = q[i].poll();
-
-//                    if (m.r == store[i].r && m.c == store[i].c) {
-//                        System.out.println("time: " + time + ", r: " + m.r + ", c: " + m.c);
-//                        cnt++;
-//                        q[i].clear();
-//                        visited[0][m.r][m.c] = true;
-//                        break;
-//                    }
 
                     for (int d = 0; d < 4; d++) {
                         int dr = m.r + dir[d][0];
@@ -90,7 +86,6 @@ public class Main {
                         q[i].add(new Man(dr, dc));
 
                         if (dr == store[i].r && dc == store[i].c) {
-//                            System.out.println("time: " + time + ", r: " + dr + ", c: " + dc);
                             cnt++;
                             q[i].clear();
                             visited[0][dr][dc] = true;
@@ -103,7 +98,6 @@ public class Main {
             if (time <= m) {
                 Man tt = findCamp(store[time]);
                 visited[0][tt.r][tt.c] = true;
-//                System.out.println("time: " + time + ", r: " + tt.r + ", c: " + tt.c);
                 q[time].add(tt);
             }
         }
